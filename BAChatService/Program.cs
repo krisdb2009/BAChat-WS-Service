@@ -1,7 +1,7 @@
 ﻿using System;
 using SuperSocket.WebSocket;
 
-namespace WebSockets
+namespace BAChatService
 {
     class Program
     {
