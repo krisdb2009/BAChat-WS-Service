@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using SuperSocket.WebSocket;
 using System.Net;
+
 namespace BAChatService
 {
     class Login
@@ -12,20 +13,40 @@ namespace BAChatService
         public static void LoginRoute(WebSocketSession session)
         {
             BASession baSession = BASession.Sessions[session];
-            if (baSession.messages.Count == 1)
+            Dictionary<string, string> credentials;
+            bool isToken;
+            if (Protocol.Receive.Login(session, out isToken, out credentials))
             {
-                if(baSession.messages[0].Length == 32)
+                if(isToken)
                 {
-                    throw new NotImplementedException("Auth Token Handleing not ready...");
+                    string result = PerformLogin(credentials["token"]);
+                    if (result != "")
+                    {
+                        Console.WriteLine("Welcome " + result);
+                        baSession.username = result;
+                    }
+                    else
+                    {
+                        Protocol.Send.Login(session);
+                    }
                 }
-            }
-            else if(baSession.messages.Count == 2)
-            {
-                PerformLogin(baSession.messages[0], baSession.messages[1]);
+                else
+                {
+                    string result = PerformLogin(credentials["username"], credentials["password"]);
+                    if(result.Length == 32)
+                    {
+                        Console.WriteLine("Sending token and login command");
+                        Protocol.Send.Login(session, result);
+                    }
+                    else
+                    {
+                        Protocol.Send.Login(session);
+                    }
+                }
             }
             else
             {
-                baSession.messages.Clear();
+                Protocol.Send.Login(session);
             }
         }
         public static bool IsLoggedIn(WebSocketSession session)
@@ -39,21 +60,28 @@ namespace BAChatService
                 return false;
             }
         }
-        public static bool PerformLogin(string username, string password)
+        public static string PerformLogin(string username_or_token, string password = null)
         {
             try
             {
                 WebClient wc = new WebClient();
                 Uri uri;
-                Uri.TryCreate("https://api.belowaverage.org/v1/AUTH/", UriKind.Absolute, out uri);
+                Uri.TryCreate(Service.appSettings["BackEndAuthURL"], UriKind.Absolute, out uri);
                 wc.Headers[HttpRequestHeader.ContentType] = "application/x-www-form-urlencoded";
-                wc.UploadString(uri, "username=" + username + "&password=" + password);
+                if (username_or_token.Length == 32)
+                {
+                    return wc.UploadString(uri, username_or_token);
+                }
+                else
+                {
+                    return wc.UploadString(uri, "username=" + username_or_token + "&password=" + password);
+                }
             }
             catch(WebException e)
             {
-                Console.WriteLine(e.Message);
+                Console.WriteLine("Back-End-Auth: " + e.Message);
             }
-            return true;
+            return "";
         }
     }
 }

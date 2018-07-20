@@ -27,9 +27,11 @@ namespace BAChatService
 
         private static void Ws_NewMessageReceived(WebSocketSession session, string message)
         {
-            BASession.Sessions[session].messages.Add(message);
+            BASession baSession = BASession.Sessions[session];
+            baSession.lastMessage = message;
             if (!Login.IsLoggedIn(session))
             {
+                Console.WriteLine(session.RemoteEndPoint.ToString() + "> Attempting login...");
                 Login.LoginRoute(session);
             }
         }
@@ -37,7 +39,8 @@ namespace BAChatService
         private static void Ws_NewSessionConnected(WebSocketSession session)
         {
             new BASession(session);
-            session.Send("login");
+            Console.WriteLine("Connection established with: " + session.RemoteEndPoint.ToString() + ". Sending login command...");
+            Protocol.Send.Login(session);
         }
     }
 }
