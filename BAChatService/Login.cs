@@ -10,7 +10,7 @@ namespace BAChatService
 {
     class Login
     {
-        public static void LoginRoute(WebSocketSession session)
+        public static void Route(WebSocketSession session)
         {
             BASession baSession = BASession.Sessions[session];
             Dictionary<string, string> credentials;
@@ -19,28 +19,32 @@ namespace BAChatService
             {
                 if(isToken)
                 {
+                    Logger.Log("Performing login using token...", session);
                     string result = PerformLogin(credentials["token"]);
                     if (result != "")
                     {
-                        Console.WriteLine("Welcome " + result);
                         baSession.username = result;
+                        Logger.Log("Login success.", session);
                     }
                     else
                     {
                         Protocol.Send.Login(session);
+                        Logger.Error("Login failure. Login command has been sent.", session);
                     }
                 }
                 else
                 {
+                    Logger.Log("Performing login using username and password...", session);
                     string result = PerformLogin(credentials["username"], credentials["password"]);
                     if(result.Length == 32)
                     {
-                        Console.WriteLine("Sending token and login command");
                         Protocol.Send.Login(session, result);
+                        Logger.Log("Login success. Token and login command has been sent.", session);
                     }
                     else
                     {
                         Protocol.Send.Login(session);
+                        Logger.Error("Login failure. Login command has been sent.", session);
                     }
                 }
             }
@@ -79,7 +83,7 @@ namespace BAChatService
             }
             catch(WebException e)
             {
-                Console.WriteLine("Back-End-Auth: " + e.Message);
+                Logger.Error(e.Message);
             }
             return "";
         }

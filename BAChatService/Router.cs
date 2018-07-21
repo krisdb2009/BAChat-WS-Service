@@ -31,16 +31,24 @@ namespace BAChatService
             baSession.lastMessage = message;
             if (!Login.IsLoggedIn(session))
             {
-                Console.WriteLine(session.RemoteEndPoint.ToString() + "> Attempting login...");
-                Login.LoginRoute(session);
+                Logger.Log("Attempting login...", session);
+                Login.Route(session);
+            }
+            if(BAChannel.GetChannel(session) != null)
+            {
+                //in a channel
+            }
+            else
+            {
+                //not in a channel
             }
         }
 
         private static void Ws_NewSessionConnected(WebSocketSession session)
         {
             new BASession(session);
-            Console.WriteLine("Connection established with: " + session.RemoteEndPoint.ToString() + ". Sending login command...");
             Protocol.Send.Login(session);
+            Logger.Log("Connection established. Login command sent.", session);
         }
     }
 }

@@ -46,8 +46,29 @@ namespace BAChatService
                 }
                 catch(JsonReaderException e)
                 {
-                    Console.WriteLine("Protocol Error: " + e.Message);
+                    Logger.Error("Protocol Error: " + e.Message, session);
                     return false;
+                }
+                return false;
+            }
+            public static bool Join(WebSocketSession session, out string channelName)
+            {
+                channelName = "";
+                Dictionary<string, string> command;
+                string message = BASession.Sessions[session].lastMessage;
+                try
+                {
+                    command = JsonConvert.DeserializeObject<Dictionary<string, string>>(message);
+                }
+                catch (JsonReaderException e)
+                {
+                    Logger.Error("Protocol Error: " + e.Message, session);
+                    return false;
+                }
+                if(command.ContainsKey("command") && command["command"] == "join" && command.ContainsKey("channel") && command["channel"].Length != 0)
+                {
+                    channelName = command["channel"];
+                    return true;
                 }
                 return false;
             }
