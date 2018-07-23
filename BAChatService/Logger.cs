@@ -11,19 +11,20 @@ namespace BAChatService
     {
         public static void Log(string message, WebSocketSession session = null)
         {
+            string identity = "";
             if (session != null)
             {
-                string identity = session.RemoteEndPoint.ToString();
+                identity = session.RemoteEndPoint.ToString();
                 if (Login.IsLoggedIn(session))
                 {
-                    identity = identity + " (" + BASession.Sessions[session].username + ")";
+                    identity = identity + "(" + BASession.Sessions[session].UserName + ")";
                 }
-                Output("[" + DateTime.Now.ToLocalTime().ToString() + "]<" + identity + "> " + message);
             }
             else
             {
-                Output(message);
+                identity = "server";
             }
+            Output("[" + DateTime.Now.ToLocalTime().ToString() + "]<" + identity + "> " + message);
         }
         public static void Error(string message, WebSocketSession session = null)
         {

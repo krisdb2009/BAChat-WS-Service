@@ -30,18 +30,20 @@ namespace BAChatService
             {
                 isToken = false;
                 credentials = null;
-                string message = BASession.Sessions[session].lastMessage;
+                string message = BASession.Sessions[session].LastMessage;
                 try
                 {
                     credentials = JsonConvert.DeserializeObject<Dictionary<string, string>>(message);
-                    if (credentials.ContainsKey("username") && credentials.ContainsKey("password"))
-                    {
-                        return true;
-                    }
-                    else if (credentials.ContainsKey("token"))
-                    {
-                        isToken = true;
-                        return true;
+                    if (credentials != null) {
+                        if (credentials.ContainsKey("username") && credentials.ContainsKey("password"))
+                        {
+                            return true;
+                        }
+                        else if (credentials.ContainsKey("token"))
+                        {
+                            isToken = true;
+                            return true;
+                        }
                     }
                 }
                 catch(JsonReaderException e)
@@ -55,7 +57,7 @@ namespace BAChatService
             {
                 channelName = "";
                 Dictionary<string, string> command;
-                string message = BASession.Sessions[session].lastMessage;
+                string message = BASession.Sessions[session].LastMessage;
                 try
                 {
                     command = JsonConvert.DeserializeObject<Dictionary<string, string>>(message);

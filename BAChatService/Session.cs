@@ -18,7 +18,7 @@ namespace BAChatService
         {
             Sessions.Remove(session);
         }
-        public string username = "";
-        public string lastMessage = "";
+        public string UserName = "";
+        public string LastMessage = "";
     }
 }

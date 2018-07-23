@@ -23,7 +23,7 @@ namespace BAChatService
                     string result = PerformLogin(credentials["token"]);
                     if (result != "")
                     {
-                        baSession.username = result;
+                        baSession.UserName = result;
                         Logger.Log("Login success.", session);
                     }
                     else
@@ -55,7 +55,7 @@ namespace BAChatService
         }
         public static bool IsLoggedIn(WebSocketSession session)
         {
-            if (BASession.Sessions[session].username != "")
+            if (BASession.Sessions[session].UserName != "")
             {
                 return true;
             }

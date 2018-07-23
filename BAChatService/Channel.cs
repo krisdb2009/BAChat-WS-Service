@@ -13,23 +13,32 @@ namespace BAChatService
         {
 
         }
-        public static List<BAChannel> channels;
+        public static List<BAChannel> Channels = new List<BAChannel>();
         public static BAChannel GetChannel(WebSocketSession session)
         {
-            foreach(BAChannel baChannel in channels)
+            foreach(BAChannel baChannel in Channels)
             {
-                if(baChannel.users.Contains(session))
+                if(baChannel.Users.Contains(session))
                 {
                     return baChannel;
                 }
             }
             return null;
         }
+        public static bool IsInChannel(WebSocketSession session)
+        {
+            if (GetChannel(session) != null)
+            {
+                return true;
+            }
+            return false;
+        }
         public BAChannel(string channelName)
         {
-            name = channelName;
+            Name = channelName;
+            Channels.Add(this);
         }
-        public List<WebSocketSession> users;
-        public string name;
+        public List<WebSocketSession> Users = new List<WebSocketSession>();
+        public string Name;
     }
 }

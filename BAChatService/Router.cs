@@ -12,13 +12,13 @@ namespace BAChatService
         static void Main(string[] args)
         {
             int port = Convert.ToInt32(appSettings["ListeningPort"]);
-            Console.WriteLine("Starting server on port " + port + "...");
+            Logger.Log("Starting on port " + port + "...");
             server.Setup(port);
             server.Start();
             server.NewSessionConnected += Ws_NewSessionConnected;
             server.NewMessageReceived += Ws_NewMessageReceived;
-            Console.WriteLine("Ready.");
-
+            server.SessionClosed += Server_SessionClosed;
+            Logger.Log("Ready for connections.");
             while (true)
             {
                 Console.ReadLine();
@@ -28,19 +28,14 @@ namespace BAChatService
         private static void Ws_NewMessageReceived(WebSocketSession session, string message)
         {
             BASession baSession = BASession.Sessions[session];
-            baSession.lastMessage = message;
+            baSession.LastMessage = message;
             if (!Login.IsLoggedIn(session))
             {
-                Logger.Log("Attempting login...", session);
                 Login.Route(session);
             }
-            if(BAChannel.GetChannel(session) != null)
+            if(!BAChannel.IsInChannel(session))
             {
-                //in a channel
-            }
-            else
-            {
-                //not in a channel
+                BAChannel.Route();
             }
         }
 
@@ -49,6 +44,14 @@ namespace BAChatService
             new BASession(session);
             Protocol.Send.Login(session);
             Logger.Log("Connection established. Login command sent.", session);
+        }
+
+        private static void Server_SessionClosed(WebSocketSession session, SuperSocket.SocketBase.CloseReason value)
+        {
+            Logger.Log("Connection lost: " + value.ToString(), session);
+            //Leave the rooms
+            //Remove the session
+
         }
     }
 }
