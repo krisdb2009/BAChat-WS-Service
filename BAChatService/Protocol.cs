@@ -23,6 +23,34 @@ namespace BAChatService
                     session.Send("{\"command\":\"login\"}");
                 }
             }
+            public static void Join(WebSocketSession session)
+            {
+                session.Send("{\"command\":\"join\"}");
+            }
+            public static void Init(WebSocketSession session)
+            {
+                BASession baSession = BASession.Sessions[session];
+                BAChannel baChannel = baSession.Channel;
+                Dictionary<string, string> json = new Dictionary<string, string>();
+                json.Add("command", "init");
+                json.Add("username", baSession.UserName);
+                if (baChannel != null)
+                {
+                    json.Add("channel", baChannel.Name);
+                }
+                session.Send(JsonConvert.SerializeObject(json));
+            }
+            public static void Chat(WebSocketSession session, string username, string message, string from = null)
+            {
+                if(username != "" && message != "")
+                {
+                    Dictionary<string, string> json = new Dictionary<string, string>();
+                    json.Add("command", "chat");
+                    json.Add("username", username);
+                    json.Add("message", message);
+                    session.Send(JsonConvert.SerializeObject(json));
+                }
+            }
         }
         class Receive
         {
@@ -57,10 +85,10 @@ namespace BAChatService
             {
                 channelName = "";
                 Dictionary<string, string> command;
-                string message = BASession.Sessions[session].LastMessage;
+                string lastMessage = BASession.Sessions[session].LastMessage;
                 try
                 {
-                    command = JsonConvert.DeserializeObject<Dictionary<string, string>>(message);
+                    command = JsonConvert.DeserializeObject<Dictionary<string, string>>(lastMessage);
                 }
                 catch (JsonReaderException e)
                 {
@@ -70,6 +98,27 @@ namespace BAChatService
                 if(command.ContainsKey("command") && command["command"] == "join" && command.ContainsKey("channel") && command["channel"].Length != 0)
                 {
                     channelName = command["channel"];
+                    return true;
+                }
+                return false;
+            }
+            public static bool Chat(WebSocketSession session, out string message)
+            {
+                message = "";
+                string lastMessage = BASession.Sessions[session].LastMessage;
+                Dictionary<string, string> command;
+                try
+                {
+                    command = JsonConvert.DeserializeObject<Dictionary<string, string>>(lastMessage);
+                }
+                catch (JsonReaderException e)
+                {
+                    Logger.Error("Protocol Error: " + e.Message, session);
+                    return false;
+                }
+                if (command.ContainsKey("command") && command["command"] == "chat" && command.ContainsKey("message") && command["message"].Length != 0)
+                {
+                    message = command["message"];
                     return true;
                 }
                 return false;

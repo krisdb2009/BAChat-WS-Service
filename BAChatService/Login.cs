@@ -24,7 +24,9 @@ namespace BAChatService
                     if (result != "")
                     {
                         baSession.UserName = result;
-                        Logger.Log("Login success.", session);
+                        Protocol.Send.Init(session);
+                        Protocol.Send.Join(session);
+                        Logger.Log("Login success. Join command has been sent.", session);
                     }
                     else
                     {

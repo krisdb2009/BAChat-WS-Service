@@ -91,6 +91,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Channel.cs" />
+    <Compile Include="Chat.cs" />
     <Compile Include="Logger.cs" />
     <Compile Include="Protocol.cs" />
     <Compile Include="Login.cs" />

@@ -18,6 +18,7 @@ namespace BAChatService
         {
             Sessions.Remove(session);
         }
+        public BAChannel Channel = null;
         public string UserName = "";
         public string LastMessage = "";
     }

@@ -33,9 +33,13 @@ namespace BAChatService
             {
                 Login.Route(session);
             }
-            if(!BAChannel.IsInChannel(session))
+            else if(!BAChannel.IsInChannel(session))
             {
-                BAChannel.Route();
+                BAChannel.Route(session);
+            }
+            else
+            {
+                Chat.Route(session);
             }
         }
 
