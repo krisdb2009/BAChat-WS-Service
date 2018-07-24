@@ -66,7 +66,7 @@ namespace BAChatService
                 return false;
             }
         }
-        public static string PerformLogin(string username_or_token, string password = null)
+        public static string PerformLogin(string username_or_token, string password = null, bool logout = false)
         {
             try
             {
@@ -76,7 +76,12 @@ namespace BAChatService
                 wc.Headers[HttpRequestHeader.ContentType] = "application/x-www-form-urlencoded";
                 if (username_or_token.Length == 32)
                 {
-                    return wc.UploadString(uri, username_or_token);
+                    string lo = "";
+                    if(logout)
+                    {
+                        lo = "&logout";
+                    }
+                    return wc.UploadString(uri, "token=" + username_or_token + lo);
                 }
                 else
                 {
