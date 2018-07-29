@@ -62,7 +62,7 @@ namespace BAChatService
                 try
                 {
                     credentials = JsonConvert.DeserializeObject<Dictionary<string, string>>(message);
-                    if (credentials != null) {
+                    if (credentials != null && credentials.ContainsKey("command") && credentials["command"] == "login") {
                         if (credentials.ContainsKey("username") && credentials.ContainsKey("password"))
                         {
                             return true;
